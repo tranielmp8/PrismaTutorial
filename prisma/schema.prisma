@@ -15,6 +15,19 @@ model User {
   email    String @unique
   username String @unique
   name     String
+  posts    Post[]
 
   @@map("users")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement()) @map("post_id")
+  title     String
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @map("updated_at")
+  userId    Int?     @map("user_id")
+  author    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("posts")
 }
