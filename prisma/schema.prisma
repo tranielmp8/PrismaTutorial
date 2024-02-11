@@ -11,44 +11,46 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement()) @map("user_id")
-  email    String @unique
-  username String @unique
-  name     String
-  posts    Post[]
+  id                   Int                   @id @default(autoincrement()) @map("user_id")
+  email                String                @unique
+  username             String                @unique
+  name                 String
+  verified             Boolean               @default(false)
+  posts                Post[]
+  NotificationSettings NotificationSettings?
 
   @@map("users")
 }
 
+model NotificationSettings {
+  id        Int     @id @default(autoincrement()) @map("notification_settings_id")
+  security  Boolean @default(true)
+  marketing Boolean @default(false)
+  comms     Boolean @default(false)
+  user      User    @relation(fields: [userId], references: [id])
+
+  userId Int @unique @map("user_id")
+
+  @@map("notification_settings")
+}
+
 model Post {
-  id        Int        @id @default(autoincrement()) @map("post_id")
+  id        Int      @id @default(autoincrement()) @map("post_id")
   title     String
   body      String
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
-  userId    Int        @map("user_id")
-  author    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tags      PostTags[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    Int      @map("user_id")
+  author    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags      Tag[]    @relation("post_tags")
 
   @@map("posts")
 }
 
 model Tag {
-  id    Int        @id @default(autoincrement()) @map("tag_id")
+  id    Int    @id @default(autoincrement()) @map("tag_id")
   name  String
-  posts PostTags[]
+  posts Post[] @relation("post_tags")
 
   @@map("tags")
-}
-
-model PostTags {
-  id      Int      @id @default(autoincrement()) @map("posts_tag_id")
-  postId  Int      @map("post_id")
-  tagId   Int      @map("tag_id")
-  addedAt DateTime @default(now()) @map("added_at")
-  post    Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  tag     Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, tagId])
-  @@map("post_tags")
 }
